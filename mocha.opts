@@ -1,0 +1,4 @@
+--compilers js:babel-core/register
+--colors
+--reporter dot
+--require mocha-setup.js
