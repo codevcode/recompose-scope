@@ -7,8 +7,8 @@ import withProps from 'recompose/withProps'
 
 import scope from '../composeWithScope'
 import consumeProps from '../consumeProps'
-import passProps from '../passProps'
-import passHandlers from '../passHandlers'
+import exposeProps from '../exposeProps'
+import exposeHandlers from '../exposeHandlers'
 import injectProps from '../injectProps'
 
 const { strictEqual: is, deepEqual: deep } = assert
@@ -76,32 +76,32 @@ describe('composeWithScope', function () {
     deep(scopeProps, { pvt: 'pvt' })
     deep(baseProps, { id: 1, b: 'b' })
   })
-  it('can passing props by `passProps`', function () {
+  it('can passing props by `exposeProps`', function () {
     const props = { }
     const enhancers = [
       withProps(() => ({ value: 'value' })),
-      passProps(({ value }) => ({ value })),
+      exposeProps(({ value }) => ({ value })),
     ]
 
     const { baseProps } = tester(enhancers, props)
 
     deep(baseProps, { value: 'value' })
   })
-  it('can passing handler props by `passHandlers`', function () {
+  it('can passing handler props by `exposeHandlers`', function () {
     const props = { id: 1, b: 'b' }
     const enhancers = [
-      passHandlers({ save: () => () => {} }),
+      exposeHandlers({ save: () => () => {} }),
     ]
 
     const { baseProps } = tester(enhancers, props)
 
     is(typeof baseProps.save, 'function')
   })
-  it('`passHandlers` with handlerCreatorsFactory', function () {
+  it('`exposeHandlers` with handlerCreatorsFactory', function () {
     const props = { id: 1, b: 'b' }
     const save = () => { }
     const enhancers = [
-      passHandlers(initProps => ({
+      exposeHandlers(initProps => ({
         save: prs => data => save({ initProps, prs, data }),
       })),
     ]

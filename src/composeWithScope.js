@@ -16,12 +16,12 @@ function toArray (set) {
 function composeWithScope (...funcs) {
   let outerProps = null
 
-  const consumingKeysSet = new Set()
-  const passingKeysSet = new Set()
+  const consumingKeys = new Set()
+  const exposingKeys = new Set()
 
   // bind `this` in advance for passing `add` function as an argument
-  const addToConsuming = v => consumingKeysSet.add(v)
-  const addToPassing = v => passingKeysSet.add(v)
+  const addToConsuming = v => consumingKeys.add(v)
+  const addToExposing = v => exposingKeys.add(v)
 
   // receive the same paramater as `recompose/setPropTypes`
   function consumeProps (getPropTypes) {
@@ -55,23 +55,23 @@ function composeWithScope (...funcs) {
   }
 
   // receive the same paramater as `recompose/withProps`
-  function passProps (getArg) {
+  function exposeProps (getArg) {
     const arg = getArg()
 
     return withProps(props => {
       const passingProps = (typeof arg === 'function') ? arg(props) : arg
-      Object.keys(passingProps).map(addToPassing)
+      Object.keys(passingProps).map(addToExposing)
       return passingProps
     })
   }
 
   // receive the same paramater as `recompose/withHandlers`
-  function passHandlers (getArg) {
+  function exposeHandlers (getArg) {
     const arg = getArg()
 
     return withHandlers(props => {
       const handlerCreators = (typeof arg === 'function') ? arg(props) : arg
-      Object.keys(handlerCreators).map(addToPassing)
+      Object.keys(handlerCreators).map(addToExposing)
       return handlerCreators
     })
   }
@@ -80,8 +80,8 @@ function composeWithScope (...funcs) {
     const { name } = func
     if (name === 'madeByConsumeProps') return consumeProps(func)
     if (name === 'madeByInjectProps') return injectProps(func)
-    if (name === 'madeByPassProps') return passProps(func)
-    if (name === 'madeByPassHandlers') return passHandlers(func)
+    if (name === 'madeByExposeProps') return exposeProps(func)
+    if (name === 'madeByExposeHandlers') return exposeHandlers(func)
     return func
   }
 
@@ -94,8 +94,8 @@ function composeWithScope (...funcs) {
     }),
     ...enhancers,
     mapProps(props => ({
-      ...omit(toArray(consumingKeysSet))(outerProps),
-      ...pick(toArray(passingKeysSet))(props),
+      ...omit(toArray(consumingKeys))(outerProps),
+      ...pick(toArray(exposingKeys))(props),
     })),
   )
 }
