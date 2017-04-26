@@ -15,7 +15,6 @@ function toArray (set) {
 
 function composeWithScope (...funcs) {
   let outerProps = null
-
   const consumingKeys = new Set()
   const exposingKeys = new Set()
 
@@ -23,57 +22,60 @@ function composeWithScope (...funcs) {
   const addToConsuming = v => consumingKeys.add(v)
   const addToExposing = v => exposingKeys.add(v)
 
-  // receive the same paramater as `recompose/setPropTypes`
+
+  function pickByPropTypes (propTypes) {
+    const pickKeys = pick(Object.keys(propTypes))
+    return compose(
+      mapProps(props => ({
+        ...pickKeys(outerProps),
+        ...props,
+      })),
+      setPropTypes(propTypes),
+    )
+  }
+  function pickByMapper (mapper) {
+    return mapProps(props => ({
+      ...mapper(outerProps),
+      ...props,
+    }))
+  }
+
   function consumeProps (getPropTypes) {
     const propTypes = getPropTypes()
-    const consumedkeys = Object.keys(propTypes)
-    consumedkeys.map(addToConsuming)
+    Object.keys(propTypes).map(addToConsuming)
 
-    const pickConsumedProps = pick(consumedkeys)
-    return compose(
-      mapProps(props => ({
-        ...pickConsumedProps(outerProps),
-        ...props,
-      })),
-      setPropTypes(propTypes),
-    )
+    return pickByPropTypes(propTypes)
+  }
+  function injectProps (getArg) {
+    const arg = getArg()
+    return (typeof arg === 'function') ?
+      pickByMapper(arg) :
+      pickByPropTypes(arg)
   }
 
-  // receive the same paramater as `recompose/setPropTypes`
-  function injectProps (getPropTypes) {
-    const propTypes = getPropTypes()
-    const injectedKeys = Object.keys(propTypes)
 
-    const pickInjectedProps = pick(injectedKeys)
-    return compose(
-      mapProps(props => ({
-        ...pickInjectedProps(outerProps),
-        ...props,
-      })),
-      setPropTypes(propTypes),
-    )
+  function exposeStatic (enhancer, arg) {
+    Object.keys(arg).map(addToExposing)
+    return enhancer(arg)
   }
+  function exposeDynamic (enhancer, getArg) {
+    return enhancer(props => {
+      const arg = getArg(props)
+      Object.keys(arg).map(addToExposing)
+      return arg
+    })
+  }
+  const exposeBy = enhancer => arg => (
+    (typeof arg === 'function') ?
+      exposeDynamic(enhancer, arg) :
+      exposeStatic(enhancer, arg)
+  )
 
-  // receive the same paramater as `recompose/withProps`
   function exposeProps (getArg) {
-    const arg = getArg()
-
-    return withProps(props => {
-      const passingProps = (typeof arg === 'function') ? arg(props) : arg
-      Object.keys(passingProps).map(addToExposing)
-      return passingProps
-    })
+    return exposeBy(withProps)(getArg())
   }
-
-  // receive the same paramater as `recompose/withHandlers`
   function exposeHandlers (getArg) {
-    const arg = getArg()
-
-    return withHandlers(props => {
-      const handlerCreators = (typeof arg === 'function') ? arg(props) : arg
-      Object.keys(handlerCreators).map(addToExposing)
-      return handlerCreators
-    })
+    return exposeBy(withHandlers)(getArg())
   }
 
   function enhancerMapper (func) {

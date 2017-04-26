@@ -1,6 +1,6 @@
 {
   "name": "compose-with-scope",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Compose React HOCs with a scope that restrict the props passing in and out",
   "main": "lib/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "mocha": "mocha src/**/*spec.js --opts mocha.opts",
     "mocha:watch": "mocha src/**/*spec.js --opts mocha.opts --watch --bail",
     "linter": "eslint src --fix --ext .js,.jsx",
-    "postinstall": "babel src/ --presets es2015,react,stage-0 -d ./lib"
+    "postinstall": "babel src/ --presets es2015,react,stage-0 --ignore export -d ./lib --copy-files && babel src/export/ --presets es2015,react,stage-0 -d ./"
   },
   "repository": {
     "type": "git",
