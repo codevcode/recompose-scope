@@ -133,6 +133,18 @@ describe('composeWithScope', function () {
     deep(scopeProps, { emitter: 'emitter' })
     deep(baseProps, { coact: { emitter: 'emitter' } })
   })
+
+  it('pass function as argument to `injectProps`', function () {
+    const props = { coact: { emitter: 'emitter' } }
+    const enhancers = [
+      injectProps(({ coact }) => ({ emitter: coact.emitter })),
+    ]
+
+    const { baseProps, scopeProps } = tester(enhancers, props)
+
+    deep(scopeProps, { emitter: 'emitter' })
+    deep(baseProps, { coact: { emitter: 'emitter' } })
+  })
 })
 
 
