@@ -1,14 +1,14 @@
 {
-  "name": "compose-with-scope",
-  "version": "0.2.0",
+  "name": "recompose-scope",
+  "version": "0.3.1",
   "description": "Compose React HOCs with a scope that restrict the props passing in and out",
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "test": "npm run linter && npm run mocha",
     "mocha": "mocha src/**/*spec.js --opts mocha.opts",
     "mocha:watch": "mocha src/**/*spec.js --opts mocha.opts --watch --bail",
     "linter": "eslint src --fix --ext .js,.jsx",
-    "postinstall": "babel src/ --presets es2015,react,stage-0 --ignore export -d ./lib --copy-files && babel src/export/ --presets es2015,react,stage-0 -d ./"
+    "build": "rm -r build && babel src --presets es2015,react,stage-0 --ignore __tests__ -d build && cp -t build/ package.json README.md"
   },
   "repository": {
     "type": "git",
@@ -28,13 +28,13 @@
   },
   "homepage": "https://github.com/codevcode/compose-with-scope#readme",
   "dependencies": {
+    "recompose": "^0.23.1"
+  },
+  "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
-    "recompose": "^0.23.1"
-  },
-  "devDependencies": {
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
     "babel-polyfill": "^6.23.0",

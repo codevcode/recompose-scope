@@ -18,5 +18,6 @@ module.exports = {
     'space-before-function-paren': ['error', 'always'],
     'func-names': 'error',
     'prefer-arrow-callback': 'error' ,
+    'no-shadow': 'error' ,
   },
 }

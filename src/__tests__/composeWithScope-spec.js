@@ -1,9 +1,10 @@
 import React from 'react'
-import propTypes from 'prop-types'
+import PropTypes from 'prop-types'
 import { mount } from 'enzyme'
 
 import mapProps from 'recompose/mapProps'
 import withProps from 'recompose/withProps'
+import withState from 'recompose/withState'
 
 import scope from '../composeWithScope'
 import consumeProps from '../consumeProps'
@@ -11,30 +12,36 @@ import exposeProps from '../exposeProps'
 import exposeHandlers from '../exposeHandlers'
 import injectProps from '../injectProps'
 
+import { scopeContextTypes, selectScope } from '../utils'
+
 const { strictEqual: is, deepEqual: deep } = assert
 const { spy } = sinon
 
 const { createElement: el } = React
-const { string, number, object } = propTypes
+const { string, number, object } = PropTypes
+
 
 describe('composeWithScope', function () {
   function tester (enhancers, props) {
-    const spyBaseProps = spy(() => el('div'))
+    const spyBase = spy(() => el('div'))
+    spyBase.contextTypes = scopeContextTypes
+
     const spyScopeProps = spy(ps => ps)
 
     const Comp = scope(
       ...enhancers,
       mapProps(spyScopeProps),
-    )(spyBaseProps)
+    )(spyBase)
 
     mount(el(Comp, props))
 
     is(spyScopeProps.callCount, 1)
-    is(spyBaseProps.callCount, 1)
+    is(spyBase.callCount, 1)
 
     return {
-      baseProps: spyBaseProps.args[0][0],
+      baseProps: spyBase.args[0][0],
       scopeProps: spyScopeProps.args[0][0],
+      baseContext: spyBase.args[0][1],
     }
   }
 
@@ -76,11 +83,22 @@ describe('composeWithScope', function () {
     deep(scopeProps, { pvt: 'pvt' })
     deep(baseProps, { id: 1, b: 'b' })
   })
-  it('can passing props by `exposeProps`', function () {
+  it('can passing props by mapper with `exposeProps`', function () {
     const props = { }
     const enhancers = [
       withProps(() => ({ value: 'value' })),
       exposeProps(({ value }) => ({ value })),
+    ]
+
+    const { baseProps } = tester(enhancers, props)
+
+    deep(baseProps, { value: 'value' })
+  })
+  it('can expose props by keys with `exposeProps`', function () {
+    const props = { }
+    const enhancers = [
+      withProps(() => ({ value: 'value' })),
+      exposeProps(['value']),
     ]
 
     const { baseProps } = tester(enhancers, props)
@@ -121,19 +139,6 @@ describe('composeWithScope', function () {
 
     deep(baseProps, { name: 'Charles' })
   })
-  it('inject outer props not to be consumed by `injectProps`', function () {
-    const props = { coact: { emitter: 'emitter' } }
-    const enhancers = [
-      injectProps({ coact: object }),
-      mapProps(({ coact, ...rest }) => ({ emitter: coact.emitter, ...rest })),
-    ]
-
-    const { baseProps, scopeProps } = tester(enhancers, props)
-
-    deep(scopeProps, { emitter: 'emitter' })
-    deep(baseProps, { coact: { emitter: 'emitter' } })
-  })
-
   it('pass function as argument to `injectProps`', function () {
     const props = { coact: { emitter: 'emitter' } }
     const enhancers = [
@@ -145,13 +150,76 @@ describe('composeWithScope', function () {
     deep(scopeProps, { emitter: 'emitter' })
     deep(baseProps, { coact: { emitter: 'emitter' } })
   })
-})
+  it('pass propTypes as argument to `injectProps`', function () {
+    const props = { coact: { emitter: 'emitter' } }
+    const enhancers = [
+      injectProps({ coact: object }),
+    ]
+
+    const { baseProps, scopeProps } = tester(enhancers, props)
+
+    deep(scopeProps, { coact: { emitter: 'emitter' } })
+    deep(baseProps, { coact: { emitter: 'emitter' } })
+  })
+  it('pass array as argument to `injectProps`', function () {
+    const props = { coact: { emitter: 'emitter' } }
+    const enhancers = [
+      injectProps(['coact']),
+    ]
+
+    const { baseProps, scopeProps } = tester(enhancers, props)
+
+    deep(scopeProps, { coact: { emitter: 'emitter' } })
+    deep(baseProps, { coact: { emitter: 'emitter' } })
+  })
+  it('build scope each call', function () {
+    const enhancers = [
+      withState('value', 'setValue', null),
+      exposeProps(({ value, setValue }) => ({ value, setValue })),
+    ]
+
+    const Base = () => el('div')
+    const spyBase = spy(props => el(Base, props))
+    const spyScope = spy(ps => ps)
+
+    const Comp = scope(
+      ...enhancers,
+      mapProps(spyScope),
+    )(spyBase)
+
+    const propsA = { a: 'a' }
+    const propsB = { b: 'b' }
+    const wrapper = mount(el('div', { },
+      [
+        el(Comp, { key: 1, ...propsA }),
+        el(Comp, { key: 2, ...propsB }),
+      ],
+    ))
+
+    const comp = wrapper.find(Base).at(0)
+    comp.props().setValue('value')
 
 
-describe('recognize function that higher-order function return', function () {
-  it('use function name', function () {
-    const result = consumeProps()
+    is(spyScope.callCount, 3)
+    is(spyBase.callCount, 3)
 
-    is(result.name, 'madeByConsumeProps')
+    const baseArgs = spyBase.args
+
+    deep(baseArgs[0][0].a, 'a')
+    deep(baseArgs[0][0].value, null)
+    deep(baseArgs[1][0].b, 'b')
+    deep(baseArgs[2][0].a, 'a')
+    deep(baseArgs[2][0].value, 'value')
+  })
+  it('out of scope, context.scope should clear', function () {
+    const props = { id: 1, name: 'Charles', type: 'object' }
+    const enhancers = [
+      consumeProps({ id: number }),
+      consumeProps({ type: string }),
+    ]
+
+    const { baseContext } = tester(enhancers, props)
+
+    deep(selectScope(baseContext), undefined)
   })
 })
