@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codevcode/compose-with-scope.git"
+    "url": "git+https://github.com/codevcode/recompose-scope.git"
   },
   "keywords": [
     "recompose",
@@ -24,9 +24,9 @@
   "author": "Hsieh, Change-Hsi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/codevcode/compose-with-scope/issues"
+    "url": "https://github.com/codevcode/recompose-scope/issues"
   },
-  "homepage": "https://github.com/codevcode/compose-with-scope#readme",
+  "homepage": "https://github.com/codevcode/recompose-scope#readme",
   "dependencies": {
     "recompose": "^0.23.1"
   },
