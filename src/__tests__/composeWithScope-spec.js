@@ -11,6 +11,7 @@ import consumeProps from '../consumeProps'
 import exposeProps from '../exposeProps'
 import exposeHandlers from '../exposeHandlers'
 import injectProps from '../injectProps'
+import exposeNamespace from '../exposeNamespace'
 
 import { scopeContextTypes, selectScope } from '../utils'
 
@@ -221,5 +222,16 @@ describe('composeWithScope', function () {
     const { baseContext } = tester(enhancers, props)
 
     deep(selectScope(baseContext), undefined)
+  })
+  it('`exposeNamespace` wrap all exposed props in an Object', function () {
+    const props = { id: 1 }
+    const enhancers = [
+      exposeProps({ inner: 'inner' }),
+      exposeNamespace('ns'),
+    ]
+
+    const { baseProps } = tester(enhancers, props)
+
+    deep(baseProps, { id: 1, ns: { inner: 'inner' } })
   })
 })

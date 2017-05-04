@@ -1,6 +1,6 @@
 {
   "name": "recompose-scope",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Compose React HOCs with a scope that restrict the props passing in and out",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/codevcode/compose-with-scope.git"
+    "url": "git+https://github.com/codevcode/recompose-scope.git"
   },
   "keywords": [
     "recompose",
@@ -24,20 +24,21 @@
   "author": "Hsieh, Change-Hsi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/codevcode/compose-with-scope/issues"
+    "url": "https://github.com/codevcode/recompose-scope/issues"
   },
-  "homepage": "https://github.com/codevcode/compose-with-scope#readme",
+  "homepage": "https://github.com/codevcode/recompose-scope#readme",
   "dependencies": {
+    "lodash": "^4.17.4",
     "recompose": "^0.23.1"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
     "babel-core": "^6.24.1",
     "babel-eslint": "^7.2.3",
     "babel-polyfill": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "chai": "^3.5.0",
     "enzyme": "^2.8.2",
     "eslint": "^3.19.0",
