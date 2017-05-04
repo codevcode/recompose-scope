@@ -1,5 +1,7 @@
 import createEagerFactory from 'recompose/createEagerFactory'
 
+import isPlainObject from 'lodash/fp/isPlainObject'
+
 import { scopeContextTypes, selectScope } from './utils'
 
 
@@ -16,6 +18,12 @@ function exposeProps (arg) {
         return factory({
           ...innerProps,
           ...toExposeProps,
+        })
+      } else if (isPlainObject(arg)) {
+        Object.keys(arg).map(addToExposing)
+        return factory({
+          ...innerProps,
+          ...arg,
         })
       } else {
         arg.map(addToExposing)

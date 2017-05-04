@@ -16,11 +16,18 @@ function buildLeavingScopeProps (BaseComponent) {
   const factory = createEagerFactory(BaseComponent)
 
   const ConsumeAndExpose = (innerProps, context) => {
-    const { outerProps, consumingKeys, exposingKeys } = selectScope(context)
+    const {
+      consumingKeys,
+      outerProps,
+      exposingKeys,
+      namespace
+    } = selectScope(context)
+
+    const exposingProps = pick(toArray(exposingKeys))(innerProps)
 
     return factory({
       ...omit(toArray(consumingKeys))(outerProps),
-      ...pick(toArray(exposingKeys))(innerProps),
+      ...(namespace ? { [namespace]: exposingProps } : exposingProps),
     })
   }
 

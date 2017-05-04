@@ -15,6 +15,7 @@ function createScope (props) {
     // bind `add` to owner Set in advance for passing it as callback
     addToConsuming: v => consumingKeys.add(v),
     addToExposing: v => exposingKeys.add(v),
+    namespace: null,
   }
 }
 
