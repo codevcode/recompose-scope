@@ -1,6 +1,6 @@
-import compose from 'recompose/compose'
-import withContext from 'recompose/withContext'
-import mapProps from 'recompose/mapProps'
+import React from 'react'
+
+import createEagerFactory from 'recompose/createEagerFactory'
 
 import { SCOPE, scopeContextTypes } from './utils'
 
@@ -19,14 +19,27 @@ function createScope (props) {
   }
 }
 
-function createScopeContext (props) {
-  return { [SCOPE]: createScope(props) }
-}
+const enterScope = BaseComponent => {
+  const factory = createEagerFactory(BaseComponent)
 
-const enterScope = compose(
-  withContext(scopeContextTypes, createScopeContext),
-  mapProps(() => ({ })),
-)
+  class ProvideScope extends React.Component {
+    getChildContext () {
+      const scopeStack = this.context[SCOPE]
+      const scope = createScope(this.props)
+      return {
+        [SCOPE]: [scope].concat(scopeStack),
+      }
+    }
+    render () {
+      return factory({ }) // intent to omit all outer props
+    }
+  }
+
+  ProvideScope.contextTypes = scopeContextTypes
+  ProvideScope.childContextTypes = scopeContextTypes
+
+  return ProvideScope
+}
 
 
 export default enterScope

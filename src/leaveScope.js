@@ -1,6 +1,6 @@
-import compose from 'recompose/compose'
+import React from 'react'
+
 import createEagerFactory from 'recompose/createEagerFactory'
-import withContext from 'recompose/withContext'
 
 import omit from 'lodash/fp/omit'
 import pick from 'lodash/fp/pick'
@@ -11,39 +11,38 @@ import { SCOPE, scopeContextTypes, selectScope } from './utils'
 function toArray (set) {
   return Array.from(set.values())
 }
-
-function buildLeavingScopeProps (BaseComponent) {
+const leaveScope = BaseComponent => {
   const factory = createEagerFactory(BaseComponent)
 
-  const ConsumeAndExpose = (innerProps, context) => {
-    const {
-      consumingKeys,
-      outerProps,
-      exposingKeys,
-      namespace
-    } = selectScope(context)
+  class RemoveScope extends React.Component {
+    getChildContext () {
+      const scopeStack = this.context[SCOPE]
+      return {
+        [SCOPE]: scopeStack.slice(1),
+      }
+    }
+    render () {
+      const {
+        consumingKeys,
+        outerProps,
+        exposingKeys,
+        namespace
+      } = selectScope(this.context)
 
-    const exposingProps = pick(toArray(exposingKeys))(innerProps)
+      const exposingProps = pick(toArray(exposingKeys))(this.props)
 
-    return factory({
-      ...omit(toArray(consumingKeys))(outerProps),
-      ...(namespace ? { [namespace]: exposingProps } : exposingProps),
-    })
+      return factory({
+        ...omit(toArray(consumingKeys))(outerProps),
+        ...(namespace ? { [namespace]: exposingProps } : exposingProps),
+      })
+    }
   }
 
-  ConsumeAndExpose.contextTypes = scopeContextTypes
+  RemoveScope.contextTypes = scopeContextTypes
+  RemoveScope.childContextTypes = scopeContextTypes
 
-  return ConsumeAndExpose
+  return RemoveScope
 }
-
-function clearScopeContext () {
-  return { [SCOPE]: undefined }
-}
-
-const leaveScope = compose(
-  buildLeavingScopeProps,
-  withContext(scopeContextTypes, clearScopeContext),
-)
 
 
 export default leaveScope

@@ -234,4 +234,27 @@ describe('composeWithScope', function () {
 
     deep(baseProps, { id: 1, ns: { inner: 'inner' } })
   })
+  it('support nested scope', function () {
+    const props = { a: 'a', b: 'b', c: 'c', d: 'd' }
+
+    const spyL2Props = spy(ps => ps)
+
+    const enhancers = [
+      consumeProps({ a: string }),
+      injectProps({ b: string, c: string, d: string }),
+      scope(
+        consumeProps({ b: string }),
+        injectProps({ c: string }),
+        mapProps(spyL2Props),
+        exposeProps(() => ({ e: 'e' })),
+      ),
+      exposeProps(() => ({ f: 'f'})),
+    ]
+
+    const { baseContext, scopeProps, baseProps } = tester(enhancers, props)
+
+    deep(selectScope(baseContext), undefined)
+    deep(scopeProps, { a: 'a', c: 'c', d: 'd', e: 'e', f: 'f' })
+    deep(baseProps, { b: 'b', c: 'c', d: 'd', f: 'f' })
+  })
 })
