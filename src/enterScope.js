@@ -23,9 +23,6 @@ const enterScope = BaseComponent => {
   const factory = createEagerFactory(BaseComponent)
 
   class ProvideScope extends React.Component {
-    // TODO constructor() {
-    //   initScope()
-    // }
     constructor (props, context) {
       super(props, context)
 
