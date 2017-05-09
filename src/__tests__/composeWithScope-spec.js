@@ -103,7 +103,7 @@ describe('composeWithScope', function () {
     const props = { }
     const enhancers = [
       withProps(() => ({ value: 'value' })),
-      exposeProps(['value']),
+      exposeProps('value'),
     ]
 
     const { baseProps } = tester(enhancers, props)
@@ -300,9 +300,14 @@ describe('composeWithScope', function () {
 
     const baseArgs = spyBase.args
 
+    const scopeAt0 = omit('setValue')(spyScope.args[0][0])
+    const scopeAt1 = omit('setValue')(spyScope.args[1][0])
+
     const propsAt0 = omit('setValue')(baseArgs[0][0])
     const propsAt1 = omit('setValue')(baseArgs[1][0])
 
+    deep(scopeAt0, { a, c, d, e, f, value: null })
+    deep(scopeAt1, { a, c, d, e, f, value: 'value' })
     deep(propsAt0, { b, c, d, f, value: null })
     deep(propsAt1, { b, c, d, f, value: 'value' })
   })

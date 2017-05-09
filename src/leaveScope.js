@@ -2,15 +2,9 @@ import React from 'react'
 
 import createEagerFactory from 'recompose/createEagerFactory'
 
-import omit from 'lodash/fp/omit'
-import pick from 'lodash/fp/pick'
-
 import { SCOPE, INDEX, scopeContextTypes, selectScope } from './utils'
 
 
-function toArray (set) {
-  return Array.from(set.values())
-}
 const leaveScope = BaseComponent => {
   const factory = createEagerFactory(BaseComponent)
 
@@ -35,18 +29,11 @@ const leaveScope = BaseComponent => {
       }
     }
     render () {
-      const {
-        consumingKeys,
-        outerProps,
-        exposingKeys,
-        namespace
-      } = selectScope(this.context)
-
-      const exposingProps = pick(toArray(exposingKeys))(this.props)
+      const { outerProps, consume, expose, namespace } = selectScope(this.context)
 
       return factory({
-        ...omit(toArray(consumingKeys))(outerProps),
-        ...(namespace ? { [namespace]: exposingProps } : exposingProps),
+        ...consume(outerProps),
+        ...(namespace ? { [namespace]: expose(this.props) } : expose(this.props)),
       })
     }
   }

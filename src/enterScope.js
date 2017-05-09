@@ -2,22 +2,38 @@ import React from 'react'
 
 import createEagerFactory from 'recompose/createEagerFactory'
 
+import omit from 'lodash/fp/omit'
+import pick from 'lodash/fp/pick'
+
 import { SCOPE, INDEX, scopeContextTypes } from './utils'
 
 
+function toArray (set) {
+  return Array.from(set.values())
+}
 function createScope (props) {
   const consumingKeys = new Set()
   const exposingKeys = new Set()
+
+  let consumeKeys = null
+  let exposeKeys = null
   return {
     outerProps: props,
-    consumingKeys,
-    exposingKeys,
     // bind `add` to owner Set in advance for passing it as callback
     addToConsuming: v => consumingKeys.add(v),
     addToExposing: v => exposingKeys.add(v),
     namespace: null,
+    consume (outerProps) {
+      if (!consumeKeys) consumeKeys = omit(toArray(consumingKeys))
+      return consumeKeys(outerProps)
+    },
+    expose (innerProps) {
+      if (!exposeKeys) exposeKeys = pick(toArray(exposingKeys))
+      return exposeKeys(innerProps)
+    },
   }
 }
+
 
 const enterScope = BaseComponent => {
   const factory = createEagerFactory(BaseComponent)
