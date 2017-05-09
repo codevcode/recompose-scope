@@ -27,25 +27,22 @@ const enterScope = BaseComponent => {
       super(props, context)
 
       this.scope = createScope(this.props)
-
-      const index = context[INDEX]
-      this.scopeIndex = (index === undefined) ? 0 : index + 1
     }
     componentWillReceiveProps (nextProps) {
       this.scope.outerProps = nextProps
+      if (this.scope.notifyOutBound) this.scope.notifyOutBound()
     }
     getChildContext () {
+      const index = this.context[INDEX]
+      const scopeIndex = (index === undefined) ? 0 : index + 1
+
       const scopeStack = this.context[SCOPE] || []
-      scopeStack[this.scopeIndex] = this.scope
+      scopeStack[scopeIndex] = this.scope
       return {
         [SCOPE]: scopeStack,
-        [INDEX]: this.scopeIndex,
+        [INDEX]: scopeIndex,
       }
     }
-    // TODO didUpdate, check if props changed and leaveScope not updated
-    // constext.SCOPE[0].forceUpdate leaveScope
-    // maintain currentScopeIndex
-    // willReceiveProps, this.scope.props = nextProps
     render () {
       return factory({ }) // intent to omit all outer props
     }

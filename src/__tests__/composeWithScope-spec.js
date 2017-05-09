@@ -2,6 +2,8 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { mount } from 'enzyme'
 
+import omit from 'lodash/fp/omit'
+
 import mapProps from 'recompose/mapProps'
 import withProps from 'recompose/withProps'
 import withState from 'recompose/withState'
@@ -261,6 +263,8 @@ describe('composeWithScope', function () {
   })
   it('support intermediate shouldUpdate return false', function () {
     const spyL2Props = spy(ps => ps)
+    const [a, b, c, d, e, f] = ['a', 'b', 'c', 'd', 'e', 'f']
+    const props = { a, b, c, d }
     const enhancers = [
       consumeProps({ a: string }),
       injectProps({ b: string, c: string, d: string }),
@@ -270,13 +274,14 @@ describe('composeWithScope', function () {
         injectProps({ c: string }),
         shouldUpdate(() => false),
         mapProps(spyL2Props),
-        exposeProps(['e']),
+        exposeProps(() => ({ e })),
       ),
+      withProps(() => ({ f })),
       exposeProps(['value', 'setValue', 'f']),
     ]
 
     const Base = () => el('div')
-    const spyBase = spy(props => el(Base, props))
+    const spyBase = spy(ps => el(Base, ps))
     const spyScope = spy(ps => ps)
 
     const Comp = scope(
@@ -284,7 +289,6 @@ describe('composeWithScope', function () {
       mapProps(spyScope),
     )(spyBase)
 
-    const props = { a: 'a', b: 'b', c: 'c', d: 'd' }
     const wrapper = mount(el(Comp, props))
 
     const comp = wrapper.find(Base).at(0)
@@ -296,8 +300,10 @@ describe('composeWithScope', function () {
 
     const baseArgs = spyBase.args
 
-    deep(baseArgs[0][0].value, null)
-    deep(typeof baseArgs[0][0].setValue, 'function')
-    deep(baseArgs[1][0].value, 'value')
+    const propsAt0 = omit('setValue')(baseArgs[0][0])
+    const propsAt1 = omit('setValue')(baseArgs[1][0])
+
+    deep(propsAt0, { b, c, d, f, value: null })
+    deep(propsAt1, { b, c, d, f, value: 'value' })
   })
 })
