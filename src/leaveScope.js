@@ -5,7 +5,7 @@ import createEagerFactory from 'recompose/createEagerFactory'
 import omit from 'lodash/fp/omit'
 import pick from 'lodash/fp/pick'
 
-import { SCOPE, scopeContextTypes, selectScope } from './utils'
+import { SCOPE, INDEX, scopeContextTypes, selectScope } from './utils'
 
 
 function toArray (set) {
@@ -16,11 +16,16 @@ const leaveScope = BaseComponent => {
 
   class RemoveScope extends React.Component {
     getChildContext () {
+      const index = this.context[INDEX]
       const scopeStack = this.context[SCOPE]
       return {
-        [SCOPE]: scopeStack.slice(1),
+        [SCOPE]: scopeStack,
+        [INDEX]: (index === 0) ? undefined : index - 1
       }
     }
+    // TODO: didMount put this in context.SCOPE[0]
+    // preserver this.scope
+    // this.setState({ }) to trigger re-render
     render () {
       const {
         consumingKeys,

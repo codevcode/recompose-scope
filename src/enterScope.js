@@ -2,7 +2,7 @@ import React from 'react'
 
 import createEagerFactory from 'recompose/createEagerFactory'
 
-import { SCOPE, scopeContextTypes } from './utils'
+import { SCOPE, INDEX, scopeContextTypes } from './utils'
 
 
 function createScope (props) {
@@ -23,13 +23,32 @@ const enterScope = BaseComponent => {
   const factory = createEagerFactory(BaseComponent)
 
   class ProvideScope extends React.Component {
+    // TODO constructor() {
+    //   initScope()
+    // }
+    constructor (props, context) {
+      super(props, context)
+
+      this.scope = createScope(this.props)
+
+      const index = context[INDEX]
+      this.scopeIndex = (index === undefined) ? 0 : index + 1
+    }
+    componentWillReceiveProps (nextProps) {
+      this.scope.outerProps = nextProps
+    }
     getChildContext () {
-      const scopeStack = this.context[SCOPE]
-      const scope = createScope(this.props)
+      const scopeStack = this.context[SCOPE] || []
+      scopeStack[this.scopeIndex] = this.scope
       return {
-        [SCOPE]: [scope].concat(scopeStack),
+        [SCOPE]: scopeStack,
+        [INDEX]: this.scopeIndex,
       }
     }
+    // TODO didUpdate, check if props changed and leaveScope not updated
+    // constext.SCOPE[0].forceUpdate leaveScope
+    // maintain currentScopeIndex
+    // willReceiveProps, this.scope.props = nextProps
     render () {
       return factory({ }) // intent to omit all outer props
     }
