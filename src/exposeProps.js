@@ -1,36 +1,45 @@
+import React from 'react'
+
 import createEagerFactory from 'recompose/createEagerFactory'
 
 import isPlainObject from 'lodash/fp/isPlainObject'
+import isArray from 'lodash/fp/isArray'
 
 import { scopeContextTypes, selectScope } from './utils'
 
+
+function getExposeKeys (arg, props) {
+  if (typeof arg === 'function') return Object.keys(arg(props))
+  if (isPlainObject(arg)) return Object.keys(arg)
+  if (isArray(arg)) return arg
+  return [arg]
+}
+
+function getProps (arg, props) {
+  if (typeof arg === 'function') return arg(props)
+  if (isPlainObject(arg)) return arg
+  return {}
+}
 
 function exposeProps (arg) {
   return BaseComponent => {
     const factory = createEagerFactory(BaseComponent)
 
-    const Expose = (innerProps, context) => {
-      const { addToExposing } = selectScope(context)
+    class Expose extends React.Component {
+      constructor (props, context) {
+        super(props, context)
 
-      if (typeof arg === 'function') {
-        const toExposeProps = arg(innerProps)
-        Object.keys(toExposeProps).map(addToExposing)
+        const { addToExposing } = selectScope(context)
+        const exposeKeys = getExposeKeys(arg, props)
+        exposeKeys.map(addToExposing)
+      }
+      render () {
         return factory({
-          ...innerProps,
-          ...toExposeProps,
+          ...this.props,
+          ...getProps(arg, this.props),
         })
-      } else if (isPlainObject(arg)) {
-        Object.keys(arg).map(addToExposing)
-        return factory({
-          ...innerProps,
-          ...arg,
-        })
-      } else {
-        arg.map(addToExposing)
-        return factory(innerProps)
       }
     }
-
     Expose.contextTypes = scopeContextTypes
 
     return Expose

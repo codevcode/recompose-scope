@@ -2,9 +2,12 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { mount } from 'enzyme'
 
+import omit from 'lodash/fp/omit'
+
 import mapProps from 'recompose/mapProps'
 import withProps from 'recompose/withProps'
 import withState from 'recompose/withState'
+import shouldUpdate from 'recompose/shouldUpdate'
 
 import scope from '../composeWithScope'
 import consumeProps from '../consumeProps'
@@ -40,6 +43,7 @@ describe('composeWithScope', function () {
     is(spyBase.callCount, 1)
 
     return {
+      Comp,
       baseProps: spyBase.args[0][0],
       scopeProps: spyScopeProps.args[0][0],
       baseContext: spyBase.args[0][1],
@@ -99,7 +103,7 @@ describe('composeWithScope', function () {
     const props = { }
     const enhancers = [
       withProps(() => ({ value: 'value' })),
-      exposeProps(['value']),
+      exposeProps('value'),
     ]
 
     const { baseProps } = tester(enhancers, props)
@@ -256,5 +260,55 @@ describe('composeWithScope', function () {
     deep(selectScope(baseContext), undefined)
     deep(scopeProps, { a: 'a', c: 'c', d: 'd', e: 'e', f: 'f' })
     deep(baseProps, { b: 'b', c: 'c', d: 'd', f: 'f' })
+  })
+  it('support intermediate shouldUpdate return false', function () {
+    const spyL2Props = spy(ps => ps)
+    const [a, b, c, d, e, f] = ['a', 'b', 'c', 'd', 'e', 'f']
+    const props = { a, b, c, d }
+    const enhancers = [
+      consumeProps({ a: string }),
+      injectProps({ b: string, c: string, d: string }),
+      withState('value', 'setValue', null),
+      scope(
+        consumeProps({ b: string }),
+        injectProps({ c: string }),
+        shouldUpdate(() => false),
+        mapProps(spyL2Props),
+        exposeProps(() => ({ e })),
+      ),
+      withProps(() => ({ f })),
+      exposeProps(['value', 'setValue', 'f']),
+    ]
+
+    const Base = () => el('div')
+    const spyBase = spy(ps => el(Base, ps))
+    const spyScope = spy(ps => ps)
+
+    const Comp = scope(
+      ...enhancers,
+      mapProps(spyScope),
+    )(spyBase)
+
+    const wrapper = mount(el(Comp, props))
+
+    const comp = wrapper.find(Base).at(0)
+    comp.props().setValue('value')
+
+    is(spyScope.callCount, 2)
+    is(spyBase.callCount, 2)
+    is(spyL2Props.callCount, 1)
+
+    const baseArgs = spyBase.args
+
+    const scopeAt0 = omit('setValue')(spyScope.args[0][0])
+    const scopeAt1 = omit('setValue')(spyScope.args[1][0])
+
+    const propsAt0 = omit('setValue')(baseArgs[0][0])
+    const propsAt1 = omit('setValue')(baseArgs[1][0])
+
+    deep(scopeAt0, { a, c, d, e, f, value: null })
+    deep(scopeAt1, { a, c, d, e, f, value: 'value' })
+    deep(propsAt0, { b, c, d, f, value: null })
+    deep(propsAt1, { b, c, d, f, value: 'value' })
   })
 })

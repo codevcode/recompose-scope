@@ -2,38 +2,38 @@ import React from 'react'
 
 import createEagerFactory from 'recompose/createEagerFactory'
 
-import omit from 'lodash/fp/omit'
-import pick from 'lodash/fp/pick'
-
-import { SCOPE, scopeContextTypes, selectScope } from './utils'
+import { SCOPE, INDEX, scopeContextTypes, selectScope } from './utils'
 
 
-function toArray (set) {
-  return Array.from(set.values())
-}
 const leaveScope = BaseComponent => {
   const factory = createEagerFactory(BaseComponent)
 
   class RemoveScope extends React.Component {
+    constructor (props, context) {
+      super(props, context)
+
+      this.state = {}
+      this.scope = selectScope(context)
+    }
+    componentDidMount () {
+      this.scope.notifyOutBound = () => this.setState({})
+    }
+    componentWillUnmount () {
+      this.scope.notifyOutBound = null
+    }
     getChildContext () {
-      const scopeStack = this.context[SCOPE]
+      const index = this.context[INDEX]
       return {
-        [SCOPE]: scopeStack.slice(1),
+        [SCOPE]: this.context[SCOPE], // could omit
+        [INDEX]: (index === 0) ? undefined : index - 1
       }
     }
     render () {
-      const {
-        consumingKeys,
-        outerProps,
-        exposingKeys,
-        namespace
-      } = selectScope(this.context)
-
-      const exposingProps = pick(toArray(exposingKeys))(this.props)
+      const { outerProps, consume, expose, namespace } = selectScope(this.context)
 
       return factory({
-        ...omit(toArray(consumingKeys))(outerProps),
-        ...(namespace ? { [namespace]: exposingProps } : exposingProps),
+        ...consume(outerProps),
+        ...(namespace ? { [namespace]: expose(this.props) } : expose(this.props)),
       })
     }
   }

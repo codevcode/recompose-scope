@@ -1,22 +1,42 @@
+import React from 'react'
+
 import createEagerFactory from 'recompose/createEagerFactory'
+
+import pick from 'lodash/fp/pick'
+import isArray from 'lodash/fp/isArray'
 
 import { scopeContextTypes, selectScope } from './utils'
 
 
-function injectOuterProps (mapper, willConsume) {
+function getMapper (arg) {
+  if (typeof arg === 'function') return arg
+  if (isArray(arg)) return pick(arg)
+  return pick(Object.keys(arg))
+}
+
+function injectOuterProps (arg, willConsume) {
+  const mapper = getMapper(arg)
+
   return BaseComponent => {
     const factory = createEagerFactory(BaseComponent)
 
-    const Inject = (innerProps, context) => {
-      const { outerProps, addToConsuming } = selectScope(context)
+    class Inject extends React.Component {
+      constructor (props, context) {
+        super(props, context)
 
-      const toInjectProps = mapper(outerProps)
-      if (willConsume) Object.keys(toInjectProps).map(addToConsuming)
+        if (willConsume) {
+          const { outerProps, addToConsuming } = selectScope(this.context)
+          Object.keys(mapper(outerProps)).map(addToConsuming)
+        }
+      }
+      render () {
+        const scope = selectScope(this.context)
 
-      return factory({
-        ...toInjectProps,
-        ...innerProps,
-      })
+        return factory({
+          ...mapper(scope.outerProps),
+          ...this.props,
+        })
+      }
     }
 
     Inject.contextTypes = scopeContextTypes

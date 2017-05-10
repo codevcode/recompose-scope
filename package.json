@@ -1,6 +1,6 @@
 {
   "name": "recompose-scope",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Compose React HOCs with a scope that restrict the props passing in and out",
   "main": "index.js",
   "scripts": {
@@ -49,5 +49,8 @@
     "react-dom": "^15.5.4",
     "react-test-renderer": "^15.5.4",
     "sinon": "^2.1.0"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0"
   }
 }
