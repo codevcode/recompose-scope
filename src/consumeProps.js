@@ -9,7 +9,7 @@ import injectOuterProps from './injectOuterProps'
 const consumeProps = arg => {
   const injectEnahncer = injectOuterProps(arg, true)
 
-  if(!isPlainObject(arg)) return injectEnahncer
+  if (!isPlainObject(arg)) return injectEnahncer
   return compose(injectEnahncer, setPropTypes(arg))
 }
 

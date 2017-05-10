@@ -20,6 +20,7 @@ function createScope (props) {
   return {
     outerProps: props,
     // bind `add` to owner Set in advance for passing it as callback
+    // `addToConsuming: consumingKeys.add` does not bind add, will cause error
     addToConsuming: v => consumingKeys.add(v),
     addToExposing: v => exposingKeys.add(v),
     namespace: null,
@@ -31,9 +32,9 @@ function createScope (props) {
       if (!exposeKeys) exposeKeys = pick(toArray(exposingKeys))
       return exposeKeys(innerProps)
     },
+    notifyOutBound: null,
   }
 }
-
 
 const enterScope = BaseComponent => {
   const factory = createEagerFactory(BaseComponent)

@@ -16,6 +16,7 @@ module.exports = {
     'no-console': 'off',
     'global-require': 'off',
     'space-before-function-paren': ['error', 'always'],
+    'keyword-spacing': 'error',
     'func-names': 'error',
     'prefer-arrow-callback': 'error' ,
     'no-shadow': 'error' ,
