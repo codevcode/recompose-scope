@@ -4,6 +4,7 @@ import { mount } from 'enzyme'
 
 import omit from 'lodash/fp/omit'
 
+import compose from 'recompose/compose'
 import mapProps from 'recompose/mapProps'
 import withProps from 'recompose/withProps'
 import withState from 'recompose/withState'
@@ -310,5 +311,51 @@ describe('composeWithScope', function () {
     deep(scopeAt1, { a, c, d, e, f, value: 'value' })
     deep(propsAt0, { b, c, d, f, value: null })
     deep(propsAt1, { b, c, d, f, value: 'value' })
+  })
+  it('create another same depth scope', function () {
+    const [a, b, c, d, f] = ['a', 'b', 'c', 'd', 'f']
+    const props = { a, b, c, d }
+    const enhancers = [
+      consumeProps({ a: string }),
+      injectProps({ b: string, c: string, d: string }),
+      withState('value', 'setValue', null),
+      withProps(() => ({ f })),
+      exposeProps(['value', 'setValue', 'f']),
+    ]
+
+    const Base = () => el('div')
+    const spyBase = spy(ps => el(Base, ps))
+    const spyScope = spy(ps => ps)
+
+    const Comp = compose(
+      scope(
+        ...enhancers,
+        mapProps(spyScope),
+      ),
+      scope(
+        consumeProps(['b', 'c']),
+      ),
+    )(spyBase)
+
+    const wrapper = mount(el(Comp, props))
+
+    const comp = wrapper.find(Base).at(0)
+    comp.props().setValue('value')
+
+    is(spyScope.callCount, 2)
+    is(spyBase.callCount, 2)
+
+    const baseArgs = spyBase.args
+
+    const scopeAt0 = omit('setValue')(spyScope.args[0][0])
+    const scopeAt1 = omit('setValue')(spyScope.args[1][0])
+
+    const propsAt0 = omit('setValue')(baseArgs[0][0])
+    const propsAt1 = omit('setValue')(baseArgs[1][0])
+
+    deep(scopeAt0, { a, b, c, d, f, value: null })
+    deep(scopeAt1, { a, b, c, d, f, value: 'value' })
+    deep(propsAt0, { d, f, value: null })
+    deep(propsAt1, { d, f, value: 'value' })
   })
 })

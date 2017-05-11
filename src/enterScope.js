@@ -5,7 +5,7 @@ import createEagerFactory from 'recompose/createEagerFactory'
 import omit from 'lodash/fp/omit'
 import pick from 'lodash/fp/pick'
 
-import { SCOPE, INDEX, scopeContextTypes } from './utils'
+import { SCOPE, scopeContextTypes } from './utils'
 
 
 function toArray (set) {
@@ -50,14 +50,8 @@ const enterScope = BaseComponent => {
       if (this.scope.notifyOutBound) this.scope.notifyOutBound()
     }
     getChildContext () {
-      const index = this.context[INDEX]
-      const scopeIndex = (index === undefined) ? 0 : index + 1
-
-      const scopeStack = this.context[SCOPE] || []
-      scopeStack[scopeIndex] = this.scope
       return {
-        [SCOPE]: scopeStack,
-        [INDEX]: scopeIndex,
+        [SCOPE]: (this.context[SCOPE] || []).concat(this.scope),
       }
     }
     render () {

@@ -1,19 +1,16 @@
 import PropTypes from 'prop-types'
 
-const { array, number } = PropTypes
+const { array } = PropTypes
 
 const SCOPE = 'recompose-scope' // scope key in context
-const INDEX = 'recompose-scope-index' // scope index key in context
-const scopeContextTypes = { [SCOPE]: array, [INDEX]: number }
+const scopeContextTypes = { [SCOPE]: array }
 const selectScope = ctx => {
-  const scopeStack = ctx[SCOPE]
-  const index = ctx[INDEX]
-  return scopeStack[index]
+  const stack = ctx[SCOPE]
+  return stack[stack.length - 1]
 }
 
 export {
   SCOPE,
-  INDEX,
   scopeContextTypes,
   selectScope,
 }
