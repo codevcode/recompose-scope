@@ -2,7 +2,7 @@ import React from 'react'
 
 import createEagerFactory from 'recompose/createEagerFactory'
 
-import { SCOPE, INDEX, scopeContextTypes, selectScope } from './utils'
+import { SCOPE, scopeContextTypes, selectScope } from './utils'
 
 
 const leaveScope = BaseComponent => {
@@ -22,10 +22,8 @@ const leaveScope = BaseComponent => {
       this.scope.notifyOutBound = null
     }
     getChildContext () {
-      const index = this.context[INDEX]
       return {
-        [SCOPE]: this.context[SCOPE], // could omit
-        [INDEX]: (index === 0) ? undefined : index - 1
+        [SCOPE]: this.context[SCOPE].slice(0, -1),
       }
     }
     render () {
