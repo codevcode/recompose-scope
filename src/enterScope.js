@@ -1,6 +1,4 @@
-import React from 'react'
-
-import createEagerFactory from 'recompose/createEagerFactory'
+import React, { createFactory } from 'react'
 
 import omit from 'lodash/fp/omit'
 import pick from 'lodash/fp/pick'
@@ -37,7 +35,7 @@ function createScope (props) {
 }
 
 const enterScope = BaseComponent => {
-  const factory = createEagerFactory(BaseComponent)
+  const factory = createFactory(BaseComponent)
 
   class ProvideScope extends React.Component {
     constructor (props, context) {

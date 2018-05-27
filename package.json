@@ -29,8 +29,8 @@
   },
   "homepage": "https://github.com/codevcode/recompose-scope#readme",
   "dependencies": {
-    "lodash": "^4.17.4",
-    "recompose": "^0.23.1"
+    "lodash": "^4.17.10",
+    "recompose": "^0.27.1"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -41,17 +41,18 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
     "chai": "^3.5.0",
-    "enzyme": "^2.8.2",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^3.19.0",
     "jsdom": "^10.0.0",
     "mocha": "^3.3.0",
     "prop-types": "^15.5.8",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
-    "react-test-renderer": "^15.5.4",
+    "react": "^16.4.0",
+    "react-dom": "^16.4.0",
+    "react-test-renderer": "^16.4.0",
     "sinon": "^2.1.0"
   },
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0"
+    "react": "^0.14.0 || ^15.0.0 || ^16.0.0"
   }
 }
