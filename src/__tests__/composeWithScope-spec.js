@@ -265,7 +265,8 @@ describe('composeWithScope', function () {
     deep(scopeProps, { a: 'a', c: 'c', d: 'd', e: 'e', f: 'f' })
     deep(baseProps, { b: 'b', c: 'c', d: 'd', f: 'f' })
   })
-  it('support intermediate shouldUpdate return false', function () {
+  // issue #14
+  it.skip('support intermediate shouldUpdate return false', function () {
     const spyL2Props = spy(ps => ps)
     const [a, b, c, d, e, f] = ['a', 'b', 'c', 'd', 'e', 'f']
     const props = { a, b, c, d }

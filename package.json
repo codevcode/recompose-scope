@@ -1,6 +1,6 @@
 {
   "name": "recompose-scope",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Compose React HOCs with a scope that restrict the props passing in and out",
   "main": "index.js",
   "scripts": {
