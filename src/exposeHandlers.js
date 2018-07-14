@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { createFactory } from 'react'
 
-import createEagerFactory from 'recompose/createEagerFactory'
 import withHandlers from 'recompose/withHandlers'
 
 import { scopeContextTypes, selectScope } from './utils'
@@ -13,7 +12,7 @@ function getExposeKeys (arg, props) {
 
 const exposeHandlers = arg => BaseComponent => {
   const WrappedComp = withHandlers(arg)(BaseComponent)
-  const factory = createEagerFactory(WrappedComp)
+  const factory = createFactory(WrappedComp)
 
   class Expose extends React.Component {
     constructor (props, context) {

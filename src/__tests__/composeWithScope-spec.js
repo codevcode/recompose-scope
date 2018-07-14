@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { mount } from 'enzyme'
+import Enzyme, { mount } from 'enzyme'
+import Adapter from 'enzyme-adapter-react-16'
 
 import omit from 'lodash/fp/omit'
 
@@ -18,6 +19,8 @@ import injectProps from '../injectProps'
 import exposeNamespace from '../exposeNamespace'
 
 import { scopeContextTypes, selectScope } from '../utils'
+
+Enzyme.configure({ adapter: new Adapter() })
 
 const { strictEqual: is, deepEqual: deep } = assert
 const { spy } = sinon

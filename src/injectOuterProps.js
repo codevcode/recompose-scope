@@ -1,6 +1,4 @@
-import React from 'react'
-
-import createEagerFactory from 'recompose/createEagerFactory'
+import React, { createFactory } from 'react'
 
 import pick from 'lodash/fp/pick'
 import isArray from 'lodash/fp/isArray'
@@ -18,7 +16,7 @@ function injectOuterProps (arg, willConsume) {
   const mapper = getMapper(arg)
 
   return BaseComponent => {
-    const factory = createEagerFactory(BaseComponent)
+    const factory = createFactory(BaseComponent)
 
     class Inject extends React.Component {
       constructor (props, context) {

@@ -1,6 +1,4 @@
-import React from 'react'
-
-import createEagerFactory from 'recompose/createEagerFactory'
+import React, { createFactory } from 'react'
 
 import isPlainObject from 'lodash/fp/isPlainObject'
 import isArray from 'lodash/fp/isArray'
@@ -23,7 +21,7 @@ function getProps (arg, props) {
 
 function exposeProps (arg) {
   return BaseComponent => {
-    const factory = createEagerFactory(BaseComponent)
+    const factory = createFactory(BaseComponent)
 
     class Expose extends React.Component {
       constructor (props, context) {

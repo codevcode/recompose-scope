@@ -1,12 +1,10 @@
-import React from 'react'
-
-import createEagerFactory from 'recompose/createEagerFactory'
+import React, { createFactory } from 'react'
 
 import { SCOPE, scopeContextTypes, selectScope } from './utils'
 
 
 const leaveScope = BaseComponent => {
-  const factory = createEagerFactory(BaseComponent)
+  const factory = createFactory(BaseComponent)
 
   class RemoveScope extends React.Component {
     constructor (props, context) {
